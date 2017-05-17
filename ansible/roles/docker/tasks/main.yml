@@ -1,0 +1,59 @@
+---
+- name: Ensure that APT works with the https method
+  apt: name={{ item }} state=present
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+
+- name: ensure repository key is installed
+  apt_key:
+    id: "58118E89F3A912897C070ADBF76221572C52609D"
+    keyserver: "hkp://keyserver.ubuntu.com:80"
+#    keyserver: "hkp://p80.pool.sks-keyservers.net:80"
+    state: present
+
+- name: ensure docker registry is available
+  apt_repository: repo='deb https://apt.dockerproject.org/repo {{ ansible_distribution|lower }}-{{ ansible_distribution_release }} main' state=present
+
+- name: Update apt-cache
+  apt: update_cache=yes
+  tags:
+    - docker
+    - apt_cache
+
+- name: Purge the old repo if it exists
+  apt: name={{ item }} purge=yes
+  with_items:
+    - "lxc-docker*"
+    - "docker.io*"
+    - "docker*"
+    - python-docker
+  ignore_errors: yes
+
+- name: Install docker package
+  apt: name={{ item }} state=present
+  with_items:
+    - docker
+    - docker-engine
+  notify:
+    - Start Docker
+
+- name: Install pip
+  apt: name={{ item }} state=present
+  with_items:
+    - python-pip
+
+- name: Install docker python
+  pip:
+    name: docker-py
+
+- name: Install docker compose from url
+  shell: curl -L https://github.com/docker/compose/releases/download/1.12.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+
+- name: Change permission of docker compose
+  file:
+    path: /usr/local/bin/docker-compose
+    mode: 0755
+

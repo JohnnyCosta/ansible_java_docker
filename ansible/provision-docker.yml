@@ -1,0 +1,10 @@
+---
+- hosts: local
+  roles:
+    - docker
+  pre_tasks:
+    - name: Verify Ansible minimum version requirements. Current is {{ansible_version.full}}
+      assert:
+        that: "ansible_version.full | version_compare('2.3', '>=')"
+        msg: "You must update Ansible at least 2.3.X"
+

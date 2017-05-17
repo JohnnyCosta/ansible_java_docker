@@ -22,4 +22,8 @@ RUN echo "===> Installing Java 8..."  && \
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
+ADD ./ansible/ /var/ansible
+
+RUN ansible-playbook /var/ansible/provision-docker.yml -i /var/ansible/inventory/inventory-docker
+
 CMD [ "ansible-playbook", "--version" ]
