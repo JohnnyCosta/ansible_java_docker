@@ -26,4 +26,4 @@ ADD ./ansible/ /var/ansible
 
 RUN ansible-playbook /var/ansible/provision-docker.yml -i /var/ansible/inventory/inventory-docker
 
-CMD [ "ansible-playbook", "--version" ]
+CMD [ "/etc/init.d/docker", "start" ]
